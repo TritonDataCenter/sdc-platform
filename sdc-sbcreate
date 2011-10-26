@@ -232,7 +232,7 @@ function grab_zoneinfo
     zoneadm list -v -c > ${TEMPDIR}/zonelist.vc
     echo "  > zone kernel state"
     zonemon -k > ${TEMPDIR}/zonekstate
-    sdc-setup -lv > ${TEMPDIR}/compnode_zones
+    sdc-setup -l > ${TEMPDIR}/compnode_zones
 }
 
 function grab_zoneconfigs
