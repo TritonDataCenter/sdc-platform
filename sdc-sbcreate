@@ -250,6 +250,18 @@ function grab_zonelogs
 	    zones/*/root/var/log \
             zones/*/root/opt/smartdc/*/log >&4 2>&1
     fi
+    if [[ -f /zones/mapi/root/root/.irb-save-history ]]; then
+        cp /zones/mapi/root/root/.irb-save-history ${TEMPDIR}/irb-save-history
+    fi
+    if [[ -d /zones/mapi/root ]]; then
+        (for dir in /zones/mapi/root/home/*; do
+            cd ${dir}
+            if [[ -f .irb-save-history ]]; then
+                cat .irb-save-history \
+                    > ${TEMPDIR}/irb-save-history.$(basename ${dir})
+            fi
+         done) 2>/dev/null
+    fi
 }
 
 function grab_vminfo
