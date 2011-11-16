@@ -102,6 +102,8 @@ function grab_default
     grab_disk_list
     grab_zpool_history
     grab_rabbitmq_info
+    grab_datasets
+    grab_packages
 }
 
 function grab_sysinfo
@@ -429,6 +431,26 @@ function grab_rabbitmq_info
     else
         echo "No rabbitmq zone or zone not running" >$rbout
     fi
+}
+
+function grab_datasets
+{
+    if [[ $headnode != "true" ]]; then
+        return
+    fi
+
+    echo "  > datasets"
+    sdc-mapi "/datasets" > ${TEMPDIR}/datasets.list
+}
+
+function grab_packages
+{
+    if [[ $headnode != "true" ]]; then
+        return
+    fi
+
+    echo "  > packages"
+    sdc-mapi "/packages" > ${TEMPDIR}/packages.list
 }
 
 while getopts "d:o:c:in:u" opt; do
