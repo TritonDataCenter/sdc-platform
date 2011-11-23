@@ -13,15 +13,21 @@ if [ "$PS1" ]; then
        PS1="[\u@\h \w]\\$ "
     fi
     alias ll='ls -lF'
+    alias ls='ls --color=auto'
     [ -n "${SSH_CLIENT}" ] && export PROMPT_COMMAND='echo -ne "\033]0;${HOSTNAME} \007" && history -a'
 fi
 
 # Load bash completion
 [ -f /etc/bash/bash_completion ] && . /etc/bash/bash_completion
 
-if [ "${TERM}" == "screen" ]; then
-    export TERM=xterm-color
-fi
+case "$TERM" in
+	screen)
+		export TERM=xterm-color
+		;;
+	screen-256color)
+		export TERM=xterm-color
+		;;
+esac
 
 svclog() {
   if [[ -z "$PAGER" ]]; then
