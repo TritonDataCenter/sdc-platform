@@ -23,6 +23,12 @@
 
 set -o xtrace
 
+fatal()
+{
+    echo "Error: $1"
+    exit $SMF_EXIT_ERR_FATAL
+}
+
 . /lib/svc/share/smf_include.sh
 . /lib/svc/share/fs_include.sh
 
@@ -82,8 +88,11 @@ if [ $? -ne 0 ]; then
             mount -F zfs ${SYS_ZPOOL}/usbkey /usbkey
         fi
 
-        swap -a /dev/zvol/dsk/${SYS_ZPOOL}/swap
-	dumpadm -y -d /dev/zvol/dsk/${SYS_ZPOOL}/dump
+        swap -a /dev/zvol/dsk/${SYS_ZPOOL}/swap || \
+            fatal "failed to configure swap device"
+
+	dumpadm -y -d /dev/zvol/dsk/${SYS_ZPOOL}/dump || \
+            fatal "failed to configure dump device"
 
 	ln -s /${SYS_ZPOOL}/global/cores /cores
 
