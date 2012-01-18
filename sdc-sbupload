@@ -24,7 +24,7 @@ ENCRYPTED_OUT=$(echo ${CONFIG_datacenter_company_name} | tr -cd [:alnum:] | tr [
 function encrypt_bundle
 {
     gpg --import $JOYENT_KEY
-    gpg --encrypt --recipient 'support@joyent.com' --always-trust --output $ENCRYPTED_OUT $OUTFILE
+    gpg --encrypt --recipient 'support@joyent.com' --always-trust --armor --output $ENCRYPTED_OUT $OUTFILE
 }
 
 function upload_bundle
