@@ -171,6 +171,8 @@ function grab_zfsinfo
     zpool status -v > ${TEMPDIR}/zpool.status
     echo "    (zfs list)"
     zfs list -t all > ${TEMPDIR}/zfs.list
+    echo "    (iostat -e)"
+    iostat -e -Td > ${TEMPDIR}/iostat.e.out
 }
 
 function grab_app_config
