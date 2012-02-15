@@ -323,9 +323,11 @@ function grab_fmdump
 
 function grab_logs
 {
+    local upgrade_dir=""
+    [ -d var/tmp/upgrade_save ] && upgrade_dir="var/tmp/upgrade_save"
     echo "  > logs"
     tar -zcvf ${TEMPDIR}/gz-logs.tar.gz var/svc/log \
-        etc/svc/volatile var/adm var/log/*.log >&4 2>&1
+        etc/svc/volatile var/adm var/log/*.log $upgrade_dir >&4 2>&1
 }
 
 function grab_castatus
