@@ -64,7 +64,7 @@ function mount_zfs
             break
         fi
 
-        if [[ ${output} -eq "mount failed: Device busy" ]]; then
+        if [ "${output}" == "mount failed: Device busy" ]; then
             sleep 5
         else
             echo ${output} 1>&2
