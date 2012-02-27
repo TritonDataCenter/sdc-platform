@@ -284,6 +284,12 @@ if smf_is_globalzone; then
     /usr/bin/sysinfo -u
 fi
 
+# Enable symmetric routing: when there are multiple nics configured, always
+# take into account the interface a packet is being sent over when
+# selecting a route. This prevents packets being sent with another nic's
+# source IP.
+/usr/sbin/ndd -set /dev/ip ip_strict_src_multihoming 1
+
 # If the admin nic was missing config options, exit with a config error
 if [[ -n "${ADMIN_NIC_MISCONFIGURED}" ]]; then
     exit ${SMF_EXIT_ERR_CONFIG}
