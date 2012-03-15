@@ -104,6 +104,7 @@ function grab_default
     grab_rabbitmq_info
     grab_datasets
     grab_machines
+    grab_servers
     grab_packages
     grab_agents
 }
@@ -466,6 +467,17 @@ function grab_machines
 
     echo "  > machines"
     sdc-mapi "/machines" | gzip > ${TEMPDIR}/machines.gz
+}
+
+function grab_servers
+{
+    if [[ $headnode != "true" ]]; then
+        return
+    fi
+
+    echo "  > servers"
+    sdc-mapi "/servers" | gzip > ${TEMPDIR}/servers.gz
+    sdc-mapi "/server_roles" | gzip > ${TEMPDIR}/server_roles.gz
 }
 
 function grab_packages
