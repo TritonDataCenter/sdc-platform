@@ -75,6 +75,7 @@ function grab_default
     # By default, we grab everything except for compute nodes.
     #
     grab_sysinfo
+    grab_hw_config
     grab_dlinfo
     grab_ifconfig
     grab_routes
@@ -113,6 +114,15 @@ function grab_sysinfo
 {
     echo "  > sysinfo"
     sysinfo > ${TEMPDIR}/sysinfo.json
+}
+
+function grab_hw_config
+{
+    echo "  > hardware configuration"
+    prtdiag -v > ${TEMPDIR}/prtdiag
+    prtconf -v > ${TEMPDIR}/prtconf
+    smbios -x > ${TEMPDIR}/smbios
+    psrinfo -v > ${TEMPDIR}/psrinfo
 }
 
 function grab_dlinfo
