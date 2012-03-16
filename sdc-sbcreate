@@ -313,8 +313,13 @@ function grab_vmlogs
 
 function grab_cores
 {
-    if [[ -n $headnode ]]; then
-        echo "  > cores"
+    [[ $headnode != "true" ]] && return
+
+    echo "  > cores"
+    if [[ -z $opt_a ]]; then
+        tar -zcvf ${TEMPDIR}/cores.tar.gz \
+	    `find zones/*/cores -type f -mtime -7` >&4 2>&1
+    else
         tar -zcvf ${TEMPDIR}/cores.tar.gz zones/*/cores >&4 2>&1
     fi
 }
@@ -323,7 +328,13 @@ function grab_dumps
 {
     # These are already compressed
     echo "  > kernel crash dumps"
-    tar -cvf ${TEMPDIR}/dumps.tar var/crash/volatile >&4 2>&1
+
+    if [[ -z $opt_a ]]; then
+        tar -cvf ${TEMPDIR}/dumps.tar \
+            `find var/crash/volatile -type f -mtime -7` >&4 2>&1
+    else
+        tar -cvf ${TEMPDIR}/dumps.tar var/crash/volatile >&4 2>&1
+    fi
 }
 
 function grab_fmdump
@@ -506,7 +517,7 @@ function grab_agents
     /opt/smartdc/agents/bin/agents-npm --noreg ls 2>/dev/null > ${TEMPSDIR}/agents.list
 }
 
-while getopts "d:o:c:in:u" opt; do
+while getopts "ad:o:c:in:u" opt; do
     if [[ "$opt" == "?" ]]; then
         usage
     fi
