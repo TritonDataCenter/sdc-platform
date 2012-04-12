@@ -102,7 +102,7 @@ case "$1" in
 	# treat as if "noimport=true".
 	[[ ! -f $USBMOUNT/config ]] && exit $SMF_EXIT_OK
 
-        initial_script=${USBMOUNT}/$(grep "^initial_script=" $USBMOUNT/config 2>/dev/null | cut -d'=' -f2-)
+        initial_script=${USBMOUNT}/$(grep "^initial_script=" $USBMOUNT/config.inc/generic 2>/dev/null | cut -d'=' -f2-)
         if [ -n ${initial_script} ] && [ -e ${initial_script} ]; then
             # Execute the script
             ${initial_script}
