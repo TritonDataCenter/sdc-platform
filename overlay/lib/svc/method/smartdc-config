@@ -53,38 +53,6 @@ set_ntp_hosts() {
     && mv /etc/inet/ntp.conf.new /etc/inet/ntp.conf
 }
 
-interactive_config() {
-    # Start interactive config on console and ttys
-
-    ${USB_PATH}/scripts/prompt-config.sh $1 "${USB_PATH}" \
-        </dev/console >&/dev/console &
-    cnt=1
-
-    if [ -c /dev/ttya ]; then
-        ${USB_PATH}/scripts/prompt-config.sh $1 "${USB_PATH}" \
-            </dev/ttya >&/dev/ttya &
-        let cnt=$cnt+1
-    fi
-
-    if [ -c /dev/ttyb ]; then
-        ${USB_PATH}/scripts/prompt-config.sh $1 "${USB_PATH}" \
-            </dev/ttyb >&/dev/ttyb &
-        let cnt=$cnt+1
-    fi
-
-    # Wait for one of the interactive configs to finish
-    while [ true ]; do
-        got=`jobs -p | wc -l`
-        [ $got -lt $cnt ] && break
-        sleep 1
-    done
-
-    for i in `jobs -p`
-    do
-        kill -9 $i
-    done
-}
-
 case "$1" in
 'start')
 
@@ -98,7 +66,9 @@ case "$1" in
                 echo "ERROR: standby missing configuration file" >/dev/console
             else
                 echo "configuring standby"
-                interactive_config -S
+                /smartdc/lib/sdc-on-tty -d /dev/console -d /dev/ttya \
+                    -d /dev/ttyb \
+                    ${USB_PATH}/scripts/prompt-config.sh -S "${USB_PATH}"
 		rm -f /tmp/config_in_progress
             fi
         fi
@@ -110,7 +80,8 @@ case "$1" in
                 exit $SMF_EXIT_OK
             fi
 
-            interactive_config
+            /smartdc/lib/sdc-on-tty -d /dev/console -d /dev/ttya -d /dev/ttyb \
+                ${USB_PATH}/scripts/prompt-config.sh "${USB_PATH}"
 
             # If user quit from interactive configuration then we're done.
             [[ ! -f ${USB_PATH}/config ]] && exit $SMF_EXIT_OK

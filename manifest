@@ -5,6 +5,8 @@ f smartdc/bin/marco 0555 root bin
 f smartdc/bin/polo 0555 root bin
 f smartdc/bin/sdc-sbcreate 0555 root bin
 f smartdc/bin/sdc-sbupload 0555 root bin
+d smartdc/lib 0555 root bin
+f smartdc/lib/sdc-on-tty 0555 root bin
 f smartdc/pubkey.key 0555 root bin
 f usr/sbin/mdata-get 0555 root bin
 f lib/svc/method/net-physical 0555 root sys
