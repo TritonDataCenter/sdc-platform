@@ -16,7 +16,6 @@ manifest:
 install: world
 	cp -p $(TARGETS) $(DESTDIR)/smartdc/bin
 	cp -p pubkey.key $(DESTDIR)/smartdc
-	cp -p guest/mdata-get $(DESTDIR)/usr/sbin/mdata-get
 
 clean:
 	rm -f marco polo

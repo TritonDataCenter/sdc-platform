@@ -8,7 +8,6 @@ f smartdc/bin/sdc-sbupload 0555 root bin
 d smartdc/lib 0555 root bin
 f smartdc/lib/sdc-on-tty 0555 root bin
 f smartdc/pubkey.key 0555 root bin
-f usr/sbin/mdata-get 0555 root bin
 f lib/svc/method/net-physical 0555 root sys
 f lib/svc/manifest/network/network-physical.xml 0444 root sys
 f lib/svc/manifest/system/filesystem/joyent-fs.xml 0444 root sys
