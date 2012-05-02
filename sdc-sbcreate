@@ -335,6 +335,13 @@ function grab_dumps
     else
         tar -cvf ${TEMPDIR}/dumps.tar var/crash/volatile >&4 2>&1
     fi
+
+    dmp_cnt=`ls var/crash/volatile | wc -l`
+    if [ $dmp_cnt -gt 0 ]; then
+        tar -zcvf ${TEMPDIR}/mdb_modules.tar.gz \
+            usr/platform/i86pc/lib/mdb/kvm/amd64/* usr/lib/mdb/kvm/amd64/* \
+            >&4 2>&1
+    fi
 }
 
 function grab_fmdump
