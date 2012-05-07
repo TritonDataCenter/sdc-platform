@@ -59,6 +59,49 @@ function log_if_state
     echo "== debug end: $1 =="
 }
 
+# Gets the link state for the given interface
+function get_link_state
+{
+    link_state=$(dladm show-phys -po state $1 2>/dev/null)
+}
+
+# Waits for up to 10 seconds for the link state to change to the given value
+function wait_for_admin_nic_state
+{
+    echo "wait_for_admin_nic_state: waiting for state '$1'"
+    i=0
+    get_link_state ${SYSINFO_NIC_admin}
+    while [[ "$link_state" != "$1" ]] && [[ $i -ne 10 ]]; do
+        sleep 1
+        echo "  $i: link_state=$link_state"
+        ((i++))
+        get_link_state ${SYSINFO_NIC_admin}
+    done
+    echo "wait_for_admin_nic_state: finished in state '$link_state'"
+}
+
+# Plumbs the admin interface, and attempts to work around poorly-behaved
+# drivers that can't handle plumb commands too quickly after one another
+function plumb_admin
+{
+    driver=${SYSINFO_NIC_admin%%[0-9]*}
+    get_link_state ${SYSINFO_NIC_admin}
+    if [[ "$link_state" == "down" ]]; then
+        echo "admin nic '${SYSINFO_NIC_admin}' is down: unplumbing"
+        ifconfig ${SYSINFO_NIC_admin} down unplumb
+        wait_for_admin_nic_state "unknown"
+    fi
+
+    # There's some sort of race condition in the bnx driver: if the plumb
+    # command comes too soon after the unplumb, the interface can come up
+    # in a state where it never fires interrupts for link state changes.
+    if [[ "$driver" == "bnx" ]]; then
+        sleep 5
+    fi
+    ifconfig ${SYSINFO_NIC_admin} plumb
+    wait_for_admin_nic_state "up"
+}
+
 # Creates, plumbs and brings up a vnic with the specified parameters
 function vnic_up
 {
@@ -132,7 +175,7 @@ if smf_is_globalzone; then
 
     # Setup admin NIC
     if [[ -n ${SYSINFO_NIC_admin} ]]; then
-        ifconfig ${SYSINFO_NIC_admin} plumb
+        plumb_admin
         if [[ ${headnode} == "true" ]]; then
             if [[ -n ${CONFIG_admin_ip} ]] && [[ -n ${CONFIG_admin_netmask} ]];
             then
