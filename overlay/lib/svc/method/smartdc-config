@@ -66,8 +66,7 @@ case "$1" in
                 echo "ERROR: standby missing configuration file" >/dev/console
             else
                 echo "configuring standby"
-                /smartdc/lib/sdc-on-tty -d /dev/console -d /dev/ttya \
-                    -d /dev/ttyb \
+                /smartdc/lib/sdc-on-tty -d /dev/console \
                     ${USB_PATH}/scripts/prompt-config.sh -S "${USB_PATH}"
 		rm -f /tmp/config_in_progress
             fi
@@ -80,7 +79,7 @@ case "$1" in
                 exit $SMF_EXIT_OK
             fi
 
-            /smartdc/lib/sdc-on-tty -d /dev/console -d /dev/ttya -d /dev/ttyb \
+            /smartdc/lib/sdc-on-tty -d /dev/console \
                 ${USB_PATH}/scripts/prompt-config.sh "${USB_PATH}"
 
             # If user quit from interactive configuration then we're done.
