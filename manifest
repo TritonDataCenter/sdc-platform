@@ -1,8 +1,5 @@
 d smartdc 0555 root bin
 d smartdc/bin 0555 root bin
-f smartdc/bin/beacon 0555 root bin
-f smartdc/bin/marco 0555 root bin
-f smartdc/bin/polo 0555 root bin
 f smartdc/bin/sdc-sbcreate 0555 root bin
 f smartdc/bin/sdc-sbupload 0555 root bin
 d smartdc/lib 0555 root bin

@@ -3,7 +3,7 @@
 #
 CC=gcc
 CFLAGS=-Wall
-TARGETS=marco polo beacon sdc-sbcreate sdc-sbupload
+TARGETS=sdc-sbcreate sdc-sbupload
 
 world:  $(TARGETS)
 
@@ -18,7 +18,6 @@ install: world
 	cp -p pubkey.key $(DESTDIR)/smartdc
 
 clean:
-	rm -f marco polo
 
 sdc-sbcreate:
 	touch sdc-sbcreate
@@ -26,13 +25,4 @@ sdc-sbcreate:
 sdc-sbupload:
 	touch sdc-sbupload
 
-beacon:
-	touch beacon
-
-marco: marco.c
-	$(CC) $(CFLAGS) -o $@ $^ -lsocket
-
-polo: polo.c
-	$(CC) $(CFLAGS) -o $@ $^ -lsocket
-	
-.PHONY: manifest 
+.PHONY: manifest
