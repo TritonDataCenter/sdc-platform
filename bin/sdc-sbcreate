@@ -106,7 +106,6 @@ function grab_default
     grab_datasets
     grab_machines
     grab_servers
-    grab_packages
     grab_agents
 }
 
@@ -249,7 +248,7 @@ function grab_zoneinfo
     zoneadm list -v -c > ${TEMPDIR}/zonelist.vc
     echo "  > zone kernel state"
     zonemon -k > ${TEMPDIR}/zonekstate
-    sdc-setup -l > ${TEMPDIR}/compnode_zones
+    sdc-dcadm server-list > ${TEMPDIR}/compnode_zones
 }
 
 function grab_zoneconfigs
@@ -267,18 +266,6 @@ function grab_zonelogs
             zones/*/root/var/svc/log \
             zones/*/root/var/log \
             zones/*/root/opt/smartdc/*/log >&4 2>&1
-    fi
-    if [[ -f /zones/mapi/root/root/.irb-save-history ]]; then
-        cp /zones/mapi/root/root/.irb-save-history ${TEMPDIR}/irb-save-history
-    fi
-    if [[ -d /zones/mapi/root ]]; then
-        (for dir in /zones/mapi/root/home/*; do
-            cd ${dir}
-            if [[ -f .irb-save-history ]]; then
-                cat .irb-save-history \
-                    > ${TEMPDIR}/irb-save-history.$(basename ${dir})
-            fi
-         done) 2>/dev/null
     fi
 }
 
@@ -484,7 +471,7 @@ function grab_datasets
     fi
 
     echo "  > datasets"
-    sdc-mapi "/datasets" > ${TEMPDIR}/datasets.list
+    sdc-dcadm datasets-list > ${TEMPDIR}/datasets.list
 }
 
 function grab_machines
@@ -494,7 +481,7 @@ function grab_machines
     fi
 
     echo "  > machines"
-    sdc-mapi "/machines" | gzip > ${TEMPDIR}/machines.gz
+    sdc-dcadm zapi /machines | gzip > ${TEMPDIR}/machines.gz
 }
 
 function grab_servers
@@ -504,18 +491,7 @@ function grab_servers
     fi
 
     echo "  > servers"
-    sdc-mapi "/servers" | gzip > ${TEMPDIR}/servers.gz
-    sdc-mapi "/server_roles" | gzip > ${TEMPDIR}/server_roles.gz
-}
-
-function grab_packages
-{
-    if [[ $headnode != "true" ]]; then
-        return
-    fi
-
-    echo "  > packages"
-    sdc-mapi "/packages" > ${TEMPDIR}/packages.list
+    sdc-dcadm cnapi "/servers" | gzip > ${TEMPDIR}/servers.gz
 }
 
 function grab_agents
