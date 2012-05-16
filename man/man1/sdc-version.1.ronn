@@ -1,0 +1,25 @@
+# sdc-version(1) -- display SmartDC network details
+
+
+## SYNOPSIS
+
+`sdc-version`
+
+## DESCRIPTION
+
+sdc-version displays version information in JSON format. This version 
+information contains details on both platform, several platform sub-components
+as well as agent information if they are available. JSON output can be passed
+through the json tool to get particular sub-keys
+
+## OPTIONS
+
+None
+
+## COPYRIGHT
+
+sdc-version Copyright (c) 2011 Joyent Inc., All rights reserved.
+
+## SEE ALSO
+
+uname (1)

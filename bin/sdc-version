@@ -1,0 +1,9 @@
+#!/usr/bin/env node
+
+var version = require('sdc-version');
+
+onLoad = function(err, info) {
+  console.log(JSON.stringify(info, null, '  '));
+};
+
+version.load(onLoad);
