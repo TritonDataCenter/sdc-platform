@@ -1,7 +1,9 @@
 d smartdc 0555 root bin
 d smartdc/bin 0555 root bin
+f smartdc/bin/sdc-backup 0555 root bin
 f smartdc/bin/sdc-factoryreset 0555 root bin
 f smartdc/bin/sdc-lastcomm 0555 root bin
+f smartdc/bin/sdc-restore 0555 root bin
 f smartdc/bin/sdc-sbcreate 0555 root bin
 f smartdc/bin/sdc-sbupload 0555 root bin
 f smartdc/bin/sdc-zfs-io-throttle.d 0555 root bin
@@ -10,8 +12,10 @@ f smartdc/lib/sdc-on-tty 0555 root bin
 d smartdc/man 0555 root bin
 d smartdc/man/cat1 0555 root bin
 d smartdc/man/man1 0555 root bin
+f smartdc/man/man1/sdc-backup.1 0444 root bin
 f smartdc/man/man1/sdc-factoryreset.1 0444 root bin
 f smartdc/man/man1/sdc-lastcomm.1 0444 root bin
+f smartdc/man/man1/sdc-restore.1 0444 root bin
 f smartdc/man/man1/sdc-sbcreate.1 0444 root bin
 f smartdc/man/man1/sdc-sbupload.1 0444 root bin
 f smartdc/man/man1/sdc-zfs-io-throttle.1 0444 root bin
