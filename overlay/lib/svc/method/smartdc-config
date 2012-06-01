@@ -68,7 +68,7 @@ case "$1" in
                 echo "configuring standby"
                 /smartdc/lib/sdc-on-tty -d /dev/console \
                     ${USB_PATH}/scripts/prompt-config.sh -S "${USB_PATH}"
-		rm -f /tmp/config_in_progress
+								rm -f /tmp/config_in_progress
             fi
         fi
 
@@ -175,6 +175,9 @@ case "$1" in
     svcadm enable svc:/system/console-login:vt4
     svcadm enable svc:/system/console-login:vt5
     svcadm enable svc:/system/console-login:vt6
+
+		# force update of sysinfo (and dump to stdout so we have in the log)
+		sysinfo -f
 
     ;;
 
