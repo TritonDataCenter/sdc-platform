@@ -200,9 +200,20 @@ if smf_is_globalzone; then
             # already running.
             ifconfig ${SYSINFO_NIC_admin} dhcp || /bin/true
             ADMIN_NIC_UP=true
+
+            # also setup resolv.conf if we can
+            if [[ -n ${CONFIG_dns_domain} ]] && [[ -n ${CONFIG_dns_resolvers} ]]; then
+                echo "search ${CONFIG_dns_domain}" > /etc/resolv.conf
+                for serv in $(echo "${CONFIG_dns_resolvers}" | sed -e "s/,/ /g"); do
+                    echo "nameserver ${serv}" >> /etc/resolv.conf
+                done
+            fi
         fi
         # If on VMWare, create a bridge which allows traffic to flow correctly to the host-only network
-        if [[ "${ADMIN_NIC_UP}" == "true" ]] && [[ ${SYSINFO_Product} == "VMware Virtual Platform" ]]; then
+        if [[ "${ADMIN_NIC_UP}" == "true" ]] \
+            && [[ ${SYSINFO_Product} == "VMware Virtual Platform" ]] \
+            && [[ -z $(dladm show-bridge -p vmwarebr) ]]; then
+
             dladm create-bridge -l ${SYSINFO_NIC_admin} vmwarebr
         fi
     else
