@@ -32,6 +32,106 @@ set -o xtrace
 cd /
 PATH=/usr/sbin:/usr/bin; export PATH
 
+wait_and_clear()
+{
+    while [ true ]; do
+        # It seems like jobs -p can miscount if we don't run jobs first
+        jobs >/dev/null
+        local cnt=`jobs -p | wc -l`
+        [ $cnt -eq 0 ] && break
+        for s in `svcs -z global -x | nawk '{
+            if ($1 ~ /^svc:/) nm=$1
+            if ($1 == "State:" && $2 == "maintenance") print nm
+        }'`
+        do
+            svcadm clear $s
+        done
+        sleep 1
+    done
+}
+
+# This process is execessively complex but if not done carefully we can wedge
+# with svcs in maintenance.  We start by removing all but the agents_core.
+# Sometimes this leaves one or more agents still installed, so we do it again.
+# Finally we remove the agents_core (which should be the only thing left) and
+# then clean up the dirs so new agents will install into a fresh environment.
+# The wait_and_clear function is used to watch for svcs goint into maintenance
+# during this process and clear them so that the agent uninstall can continue.
+uninstall_agents6()
+{
+    echo "Removing the old agents..." > /dev/console
+
+    local AGENTS_DIR=/opt/smartdc/agents
+
+    local agent=
+    local TOREMOVE=`/opt/smartdc/agents/bin/agents-npm --no-registry \
+        ls installed 2>/dev/null | nawk '{print $1}'`
+    for agent in $TOREMOVE
+    do
+        (echo "$agent" | egrep -s '^atropos@') && continue
+        # We have to do agents_core after the others
+        (echo "$agent" | egrep -s '^agents_core@') && continue
+
+        # Supress possible npm warning removing CA (See AGENT-392)
+        if (echo "$agent" | egrep -s '^cainstsvc'); then
+            [ -e $AGENTS_DIR/smf/cainstsvc-default.xml ] && \
+                touch $AGENTS_DIR/smf/cainstsvc.xml
+        fi
+
+        echo "Uninstall: $agent"
+        /opt/smartdc/agents/bin/agents-npm uninstall $agent &
+        wait_and_clear
+    done
+
+    TOREMOVE=`/opt/smartdc/agents/bin/agents-npm --no-registry ls installed \
+        2>/dev/null | nawk '{print $1}'`
+    for agent in $TOREMOVE
+    do
+        (echo "$agent" | egrep -s '^atropos@') && continue
+        # We have to do agents_core after the others
+        (echo "$agent" | egrep -s '^agents_core@') && continue
+
+        echo "Uninstall: $agent"
+        /opt/smartdc/agents/bin/agents-npm uninstall $agent &
+        wait_and_clear
+    done
+
+    TOREMOVE=`/opt/smartdc/agents/bin/agents-npm --no-registry ls installed \
+        2>/dev/null | nawk '{print $1}'`
+    for agent in $TOREMOVE
+    do
+        (echo "$agent" | egrep -s '^atropos@') && continue
+
+        echo "Uninstall: $agent"
+        /opt/smartdc/agents/bin/agents-npm uninstall $agent &
+        wait_and_clear
+    done
+
+    for dir in $(ls "$AGENTS_DIR"); do
+        case "$dir" in
+        db|smf) continue ;;
+        *)      rm -fr $AGENTS_DIR/$dir ;;
+        esac
+    done
+
+    rm -rf $AGENTS_DIR/smf/*
+}
+
+install_agents7()
+{
+    echo "Installing the new agents..." > /dev/console
+
+    # Note: the preceeding call to install_config has called load_sdc_config
+
+    curl -k -o /var/agents_latest.sh \
+        -s $CONFIG_assets_admin_ip:/extra/agents/latest
+
+    [[ ! -f /var/agents_latest.sh ]] && return 1
+    (cd /var/tmp; bash /var/agents_latest.sh)
+    rm -f /var/agents_latest.sh
+    return 0
+}
+
 update_root_password()
 {
 
@@ -118,6 +218,15 @@ case "$1" in
         fi
     else
 	install_config
+
+        # If this CN was running 6.5.x and has now been booted onto 7.0, we
+        # need to uninstall the old 6.5.x agents and install the new 7.0 agents.
+        if [[ -d /opt/smartdc/agents/modules && \
+            ! -d  /opt/smartdc/agents/lib ]]; then
+            echo "Upgrading the system's agents" > /dev/console
+            uninstall_agents6
+            install_agents7
+        fi
     fi
 
     if /bin/bootparams | grep "^headnode=true" > /dev/null 2>&1; then
