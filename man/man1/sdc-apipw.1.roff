@@ -1,0 +1,18 @@
+.TH "sdc\-apipw" "1" "August 2012" "" ""
+.
+.SH "NAME"
+\fBsdc-apipw\fR \- Change the HTTP service password
+.
+.SH "SYNOPSIS"
+\fBsdc\-apipw\fR
+.br
+.
+.SH "DESCRIPTION"
+This utility prompts for a new password for the HTTP-based services,
+then updates all of the configuration files and restarts services on the
+system to use the new password.  The password must be at least six characters
+in length.  The headnode should be backed up using \fBsdc\-backup\fR
+after the password has been changed.
+.
+.SH "COPYRIGHT"
+sdc\-apipw Copyright (c) 2012 Joyent Inc\., All rights reserved\.
