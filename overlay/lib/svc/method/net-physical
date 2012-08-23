@@ -297,10 +297,13 @@ else
 
     # Bring up statically assigned interfaces, and find the primary DHCP
     # interface, if it exists
-    for iface in `dladm show-vnic -p -o link`; do
+    while IFS=: read -r iface addrtype; do
         if [[ -f /etc/hostname.${iface} ]]; then
             ifconfig ${iface} plumb
-            ifconfig ${iface} inet `cat /etc/hostname.${iface}` up
+            # vrrp interfaces can't be brought up with ifconfig
+            if [[ ! "${addrtype}" =~ "^vrrp" ]]; then
+                ifconfig ${iface} inet `cat /etc/hostname.${iface}` up
+            fi
         else
             if [[ -z "${first_iface}" ]]; then
                 first_iface=${iface}
@@ -309,7 +312,7 @@ else
                 primary=${iface}
             fi
         fi
-    done
+    done < <(dladm show-vnic -p -o link,macaddrtype 2>/dev/null)
 
     if [[ -z "${primary}" && -n "${first_iface}" ]]; then
         primary=${first_iface}
