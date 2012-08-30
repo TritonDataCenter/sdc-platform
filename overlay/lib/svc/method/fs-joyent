@@ -123,6 +123,16 @@ if [ $? -ne 0 ]; then
 	dumpadm -y -d /dev/zvol/dsk/${SYS_ZPOOL}/dump || \
             fatal "failed to configure dump device"
 
+	zfs list -H -o name ${SYS_ZPOOL}/cores/global >/dev/null 2>&1
+	if [ $? -ne 0 ]; then
+	    # Booting for the first time on a CN whose cores dataset is setup
+	    # in the 6.x style.  Convert to the new style.
+	    zfs destroy -r ${SYS_ZPOOL}/cores
+	    zfs create -o compression=gzip -o mountpoint=none ${SYS_ZPOOL}/cores
+	    zfs create -o quota=10g -o mountpoint=/${SYS_ZPOOL}/global/cores \
+	        ${SYS_ZPOOL}/cores/global
+	fi
+
 	ln -s /${SYS_ZPOOL}/global/cores /cores
 
 	[[ -f /${SYS_ZPOOL}/currbooted ]] && \
