@@ -5,7 +5,7 @@
 ## Headnode should phone home nightly.
 0 1 * * * /opt/smartdc/bin/sdc-phonehome
 ## Delete saved core dumps over 7 days old
-15 0 * * * find /zones/*/cores -mtime +7 -exec rm -f "{}" \;
+15 0 * * * find /zones/*/cores/* -mtime +7 -exec rm -f "{}" \;
 
 # NOTE: all entries above are in root's system-defined crontab; see the
 # crontab(1) man page.
