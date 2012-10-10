@@ -322,8 +322,12 @@ else
     while IFS=: read -r iface addrtype; do
         if [[ -f /etc/hostname.${iface} ]]; then
             ifconfig ${iface} plumb
-            # vrrp interfaces can't be brought up with ifconfig
-            if [[ ! "${addrtype}" =~ "^vrrp" ]]; then
+            # vrrp interfaces can't be brought up with ifconfig: vrrpadm
+            # handles that instead
+            if [[ "${addrtype}" =~ "^vrrp" ]]; then
+                ifconfig ${iface} inet `cat /etc/hostname.${iface} \
+                    | sed -e 's/ up//'`
+            else
                 ifconfig ${iface} inet `cat /etc/hostname.${iface}` up
             fi
         else
