@@ -61,6 +61,7 @@ case "$1" in
     export AMQP_PASSWORD=$(echo $rabbit | cut -d: -f2)
     export AMQP_HOST=$(echo $rabbit | cut -d: -f3)
     export AMQP_PORT=$(echo $rabbit | cut -d: -f4)
+    export NODE_PATH=/usr/node/node_modules
 
     /usr/bin/ctrun -l child -o noorphan /smartdc/ur-agent/ur-agent 2>&1 &
 
