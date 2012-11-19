@@ -1,3 +1,4 @@
+f .smartdc_version 0444 root root
 d root 0755 root root
 f root/.bash_profile 0644 root root
 f root/.bashrc 0644 root root
