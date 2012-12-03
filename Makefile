@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2010,2011 Joyent Inc., All rights reserved.
+# Copyright (c) 2010-2012 Joyent Inc., All rights reserved.
 #
 CC=gcc
 CFLAGS=-Wall
@@ -23,6 +23,12 @@ install: world
 		/usr/sbin/install -m 0755 \
 		-f $(DESTROOT)/bin \
 		$(ROOT)/bin/$${file}; \
+	done
+	@mkdir -p $(DESTROOT)/node_modules
+	for file in $$(ls $(ROOT)/node_modules); do \
+		/usr/sbin/install -m 0444 \
+		-f $(DESTROOT)/node_modules \
+		$(ROOT)/node_modules/$${file}; \
 	done
 	@mkdir -p $(DESTROOT)/man/man1
 	for file in $$(ls $(ROOT)/man/man1/*.roff); do \
