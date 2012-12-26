@@ -44,7 +44,7 @@ set_ntp_hosts() {
 
     (
     for i in $(echo ${ntp_hosts} | sed -e "s/,/ /g"); do
-        echo "server ${i}"
+        echo "server ${i} burst iburst minpoll 4"
     done
     if [[ -f /etc/inet/ntp.conf ]]; then
         cat /etc/inet/ntp.conf | grep -v "^server"
