@@ -26,7 +26,7 @@ install: world
 	done
 	@mkdir -p $(DESTROOT)/node_modules
 	for file in $$(ls $(ROOT)/node_modules); do \
-		/usr/sbin/install -m 0444 \
+		/usr/sbin/install -m 0644 \
 		-f $(DESTROOT)/node_modules \
 		$(ROOT)/node_modules/$${file}; \
 	done
