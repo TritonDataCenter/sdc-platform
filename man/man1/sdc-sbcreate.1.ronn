@@ -32,47 +32,46 @@ This utility creates a service bundle.
               content is included.  The list may include any
               of:
 
-        sysinfo
-        hw_config
-        dlinfo
-        ifconfig
-        routes
+        agents
+        app_config
         auditlog
-        svcs
-        ps
-        zfsinfo
-        df
-        modinfo
-        headnode_info
-        zoneinfo
-        zoneconfigs
-        zonelogs
-        vminfo
-        vmlogs
-        cores
-        dumps
-        fmdump
-        logs
         castatus
+        compute
+        cores
+        df
+        disk_list
+        dlinfo
+        dumps
+        fmd
+        fmdump
+        headnode_info
+        hw_config
+        ifconfig
+        images
+        logs
+        modinfo
         phonehome
         platform_md5
-        app_config
-        fmd
-        disk_list
-        zpool_history
+        ps
         rabbitmq_info
-        datasets
-        machines
+        routes
         servers
-        packages
-        agents
-        compute
+        svcs
+        sysinfo
+        vminfo
+        vmlogs
+        vms
+        zfsinfo
+        zoneconfigs
+        zoneinfo
+        zonelogs
+        zpool_history
 
 
 
 ## COPYRIGHT
 
-sdc-sbcreate Copyright (c) 2012 Joyent Inc., All rights reserved.
+sdc-sbcreate Copyright (c) 2013 Joyent Inc., All rights reserved.
 
 
 ## SEE ALSO

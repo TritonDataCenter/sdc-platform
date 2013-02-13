@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2012, Joyent Inc., All rights reserved.
+# Copyright (c) 2013, Joyent Inc., All rights reserved.
 #
 
 #
@@ -10,9 +10,10 @@
 #
 
 # Note for man page. Use this to generate the list of available args to "-c":
-#   grep ^function sdc-sbcreate | grep grab_ | cut -c 15- | grep -v default | sort
+# grep ^function sdc-sbcreate | grep grab_ | cut -c 15- | grep -v default | sort
 
-PATH=/bin:/usr/bin:/sbin:/usr/sbin:/smartdc/bin:/opt/local/bin:/opt/local/sbin
+PATH=/usr/bin:/sbin:/usr/sbin:/opt/smartdc/bin:/opt/smartdc/agents/bin
+PATH=$PATH:/smartdc/bin
 
 . /lib/sdc/config.sh
 load_sdc_config
@@ -103,8 +104,8 @@ function grab_default
     grab_disk_list
     grab_zpool_history
     grab_rabbitmq_info
-    grab_datasets
-    grab_machines
+    grab_images
+    grab_vms
     grab_servers
     grab_agents
 }
@@ -189,18 +190,20 @@ function grab_zfsinfo
 function grab_app_config
 {
     echo "  > app zone config"
-    zones=$(zoneadm list -i | grep -v global)
-    for zone in ${zones}; do
-      if [[ -d /zones/${zone}/root/opt/smartdc/${zone}-data/config ]]; then
-         ( cd  /zones/${zone}/root/opt/smartdc/${zone}-data/; /usr/bin/gtar -zcf ${TEMPDIR}/${zone}.config.tgz config )
-      elif [[ ${zone} == "cloudapi" && -d /zones/${zone}/root/opt/smartdc/cloudapi/cfg ]]; then
-         ( cd  /zones/${zone}/root/opt/smartdc/${zone}/; /usr/bin/gtar -zcf ${TEMPDIR}/${zone}.config.tgz cfg )
-      elif [[ ${zone} == "portal" && -f /zones/${zone}/root/opt/smartdc/portal/config.js ]]; then
-         ( cd  /zones/${zone}/root/opt/smartdc/${zone}/; /usr/bin/gtar -zcf ${TEMPDIR}/${zone}.config.tgz config.js )
-      elif [[ ${zone} == "dhcpd" && -f /zones/${zone}/root/opt/smartdc/booter/config.js ]]; then
-         ( cd  /zones/${zone}/root/opt/smartdc/booter/; /usr/bin/gtar -zcf ${TEMPDIR}/${zone}.config.tgz config.js )
-      fi
-    done
+    local znm=
+    local cfg=
+
+    znm=$(vmadm lookup -1 tags.smartdc_role=cloudapi 2>/dev/null)
+    cfg=/zones/${znm}/root/opt/smartdc/cloudapi/etc/cloudapi.cfg
+    [[ -n "$znm" && -f $cfg ]] && cp $cfg ${TEMPDIR}/cloudapi.cfg
+
+    znm=$(vmadm lookup -1 tags.smartdc_role=portal 2>/dev/null)
+    cfg=/zones/${znm}/root/opt/smartdc/portal/cfg/config.js
+    [[ -n "$znm" && -f $cfg ]] && cp $cfg ${TEMPDIR}/portal.config.js
+
+    znm=$(vmadm lookup -1 tags.smartdc_role=dhcpd 2>/dev/null)
+    cfg=/zones/${znm}/root/opt/smartdc/booter/config.json
+    [[ -n "$znm" && -f $cfg ]] && cp $cfg ${TEMPDIR}/dhcpd.config.json
 }
 
 function grab_disk_list
@@ -246,9 +249,9 @@ function grab_zoneinfo
 {
     echo "  > zone list"
     zoneadm list -v -c > ${TEMPDIR}/zonelist.vc
+    vmadm list > ${TEMPDIR}/vmadmlist
     echo "  > zone kernel state"
     zonemon -k > ${TEMPDIR}/zonekstate
-    sdc-dcadm server-list > ${TEMPDIR}/compnode_zones
 }
 
 function grab_zoneconfigs
@@ -464,24 +467,24 @@ function grab_rabbitmq_info
     fi
 }
 
-function grab_datasets
+function grab_images
 {
     if [[ $headnode != "true" ]]; then
         return
     fi
 
-    echo "  > datasets"
-    sdc-dcadm datasets-list > ${TEMPDIR}/datasets.list
+    echo "  > images"
+    sdc-imgapi /images > ${TEMPDIR}/images.list
 }
 
-function grab_machines
+function grab_vms
 {
     if [[ $headnode != "true" ]]; then
         return
     fi
 
-    echo "  > machines"
-    sdc-dcadm zapi /machines | gzip > ${TEMPDIR}/machines.gz
+    echo "  > vms"
+    sdc-vmapi /vms | gzip > ${TEMPDIR}/vms.gz
 }
 
 function grab_servers
@@ -491,13 +494,13 @@ function grab_servers
     fi
 
     echo "  > servers"
-    sdc-dcadm cnapi "/servers" | gzip > ${TEMPDIR}/servers.gz
+    sdc-cnapi /servers | gzip > ${TEMPDIR}/servers.gz
 }
 
 function grab_agents
 {
     echo "  > agents"
-    /opt/smartdc/agents/bin/agents-npm --noreg ls 2>/dev/null > ${TEMPSDIR}/agents.list
+    apm list > ${TEMPDIR}/agents.list
 }
 
 while getopts "ad:o:c:in:u" opt; do
