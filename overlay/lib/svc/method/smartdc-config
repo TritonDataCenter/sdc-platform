@@ -60,18 +60,6 @@ case "$1" in
     if /bin/bootparams | grep "^headnode=true" > /dev/null 2>&1; then
         USB_PATH=/mnt/`svcprop -p "joyentfs/usb_mountpoint" svc:/system/filesystem/smartdc:default`
 
-        if /bin/bootparams | grep "^standby=true" >/dev/null 2>&1; then
-            if [[ ! -f ${USB_PATH}/config ]]; then
-                echo "ERROR: standby missing configuration file"
-                echo "ERROR: standby missing configuration file" >/dev/console
-            else
-                echo "configuring standby"
-                /smartdc/lib/sdc-on-tty -d /dev/console \
-                    ${USB_PATH}/scripts/prompt-config.sh -S "${USB_PATH}"
-                rm -f /tmp/config_in_progress
-            fi
-        fi
-
         # Check for config and run interactive if it doesn't exist.
         if [[ ! -f ${USB_PATH}/config ]]; then
             if /bin/bootparams | grep "^noimport=true" >/dev/null 2>&1; then
