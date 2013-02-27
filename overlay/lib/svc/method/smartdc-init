@@ -224,13 +224,15 @@ case "$1" in
         if [[ -d /opt/smartdc/agents/modules && \
             ! -d  /opt/smartdc/agents/lib ]]; then
 
-	    # setup rollback
-	    zfs snapshot zones/opt@rollback
+            # Enable new ZFS features. The pool will no longer be usable on 6.5
+            zpool set feature@async_destroy=enabled zones
+            zpool set feature@empty_bpobj=enabled zones
+            zpool set feature@lz4_compress=enabled zones
+            zpool set feature@filesystem_limits=enabled zones
 
-            # convert to new-style GZ cores dataset
+            # Convert to 7.0-style cores datasets
             zfs destroy -r zones/cores
-            zfs create -o compression=gzip -o mountpoint=none zones/cores
-
+            zfs create -o compression=lz4 -o mountpoint=none zones/cores
             for i in `zoneadm list -c`
             do
                 zfs destroy -rf zones/$i/cores
