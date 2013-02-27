@@ -3,11 +3,8 @@ if [ "$PS1" ]; then
     if [[ -f /.dcinfo ]]; then
         . /.dcinfo
         DC_NAME="${SDC_DATACENTER_NAME}"
-        DC_HEADNODE_ID="${SDC_DATACENTER_HEADNODE_ID}"
     fi
-    if [[ -n "${DC_NAME}" && -n "${DC_HEADNODE_ID}" ]]; then
-       PS1="[\u@\h (${DC_NAME}:${DC_HEADNODE_ID}) \w]\\$ "
-    elif [[ -n "${DC_NAME}" ]]; then
+    if [[ -n "${DC_NAME}" ]]; then
        PS1="[\u@\h (${DC_NAME}) \w]\\$ "
     else
        PS1="[\u@\h \w]\\$ "
