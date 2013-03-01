@@ -246,6 +246,9 @@ case "$1" in
 	    echo "stopping svcs"
 	    for i in `svcs -a | nawk '/smartdc\/agent/{print $3}'`
 	    do
+		[[ "$i" == "svc:/smartdc/agent/ur:default" || \
+		   "$i" == "svc:/smartdc/agent/metadata:default" ]] && \
+		    continue
 		svcadm disable $i
 	    done
 
