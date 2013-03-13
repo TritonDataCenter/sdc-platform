@@ -7,7 +7,7 @@
     <single_instance/>
 
     <dependency name="smartdc-init" grouping="require_all" restart_on="error" type="service">
-      <service_fmri value="svc:/system/smartdc/config"/>
+      <service_fmri value="svc:/network/physical"/>
     </dependency>
 
     <exec_method
