@@ -181,6 +181,83 @@ install_config()
     fi
 }
 
+# If the CN has a local USB key, make sure its setup for universal booting
+update_local_key()
+{
+    local key=`diskinfo -H | nawk -F\t '{
+        if ($1 == "USB" && $6 == "yes" && $7 == "no") print $2}'`
+    local nkeys=`echo $key | wc -w`
+    [ $nkeys -ne 1 ] && return
+
+    curl -k -o /var/cnkey.tgz -f -s \
+        $CONFIG_assets_admin_ip:/extra/usbkey/cnkey.tgz
+    [ ! -f /var/cnkey.tgz ] && return
+
+    mkdir -p /mnt/usbkey
+    mount -F pcfs -o noatime /dev/dsk/${key}p0:1 /mnt/usbkey
+    if [[ $? == 0 ]]; then
+        if [[ -d /mnt/usbkey/boot && -d /mnt/usbkey/dos && \
+            -f /mnt/usbkey/boot/ipxe.lkrn ]]; then
+            # already setup
+            umount /mnt/usbkey
+            rm -f /var/cnkey.tgz
+            return
+        fi
+        # cleanup in preparation for new image
+        rm -rf /mnt/usbkey/* /mnt/usbkey/.[a-zA_Z]
+    else
+        # Key in an unknown state, clear it and set it up
+
+        # First clear label since fdisk -g fails on a labeled disk
+        dd if=/dev/zero of=/dev/rdsk/${key}p0 count=2
+
+        nsect=`fdisk -g /dev/rdsk/${key}p0 | nawk '{
+            if ($1 == "*") next; print $1 * $5 * $6 }'`
+        printf "12 128 0 0 0 0 0 0 4096 %d\n" $nsect >/tmp/fdisk.in
+        fdisk -F /tmp/fdisk.in /dev/rdsk/${key}p0
+
+        # Need temp copy of files for grub stage1
+        mkdir /var/key$$
+        (cd /var/key$$; gzcat /var/cnkey.tgz | tar xf -)
+
+        echo "y" | mkfs -F pcfs \
+            -o B=/var/key$$/boot/grub/stage1,fat=32 /dev/rdsk/${key}p0:c
+        mount -F pcfs -o noatime /dev/dsk/${key}p0:c /mnt/usbkey
+        if [[ $? != 0 ]]; then
+            rm -f /var/cnkey.tgz
+            rm -rf /var/key$$
+            return
+        fi
+        rm -rf /var/key$$
+    fi
+
+    # install new files
+    (cd /mnt/usbkey; gzcat /var/cnkey.tgz | tar xf -)
+    rm -f /var/cnkey.tgz
+
+    # setup CN boot menu
+    cat <<-MENU_DONE >/mnt/usbkey/boot/grub/menu.lst
+	default 0
+	timeout 5
+	min_mem64 1024
+	serial --speed=115200 --unit=1 --word=8 --parity=no --stop=1
+	terminal composite
+	variable os_console text
+
+	title Compute Node (PXE)
+	kernel /boot/ipxe.lkrn
+
+	title Legacy Firmware Upgrade Mode
+	kernel$ /boot/memdisk console=\${os_console}
+	module /boot/freedos.img raw
+	MENU_DONE
+
+    umount /mnt/usbkey
+
+    # Always install stage1.5 since we don't know if key was bootable
+    printf "(hd0) %s\n" /dev/dsk/${key}p0 >/tmp/grub.map
+    printf "root (hd0,0)\nsetup (hd0)\n" | grub --device-map=/tmp/grub.map
+}
 
 case "$1" in
 'start')
@@ -254,6 +331,9 @@ case "$1" in
 
             uninstall_agents6
             install_agents7
+
+            update_local_key
+
             echo "Upgrade done" > /dev/console
         fi
     fi
