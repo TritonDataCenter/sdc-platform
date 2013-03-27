@@ -256,7 +256,8 @@ update_local_key()
 
     # Always install stage1.5 since we don't know if key was bootable
     printf "(hd0) %s\n" /dev/dsk/${key}p0 >/tmp/grub.map
-    printf "root (hd0,0)\nsetup (hd0)\n" | grub --device-map=/tmp/grub.map
+    printf "root (hd0,0)\nsetup (hd0)\n" | \
+        TERM=xterm grub --device-map=/tmp/grub.map
 }
 
 case "$1" in
