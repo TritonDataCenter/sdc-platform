@@ -193,18 +193,29 @@ update_local_key()
         $CONFIG_assets_admin_ip:/extra/usbkey/cnkey.tgz
     [ ! -f /var/cnkey.tgz ] && return
 
-    mkdir -p /mnt/usbkey
-    mount -F pcfs -o noatime /dev/dsk/${key}p0:1 /mnt/usbkey
+    local console=$(bootparams | grep ^console= | cut -d= -f2)
+    [ -z "$console" ] && console=text
+
+    local kmnt=/mnt/usbkey
+    mkdir -p $kmnt
+    mount -F pcfs -o noatime /dev/dsk/${key}p0:1 $kmnt
     if [[ $? == 0 ]]; then
-        if [[ -d /mnt/usbkey/boot && -d /mnt/usbkey/dos && \
-            -f /mnt/usbkey/boot/ipxe.lkrn ]]; then
+        if [[ -d $kmnt/dos && -f $kmnt/boot/grub/menu.lst &&
+            -f $kmnt/boot/ipxe.lkrn ]]; then
             # already setup
-            umount /mnt/usbkey
+
+            # Ensure grub timeout is 5 secs for CNs and console is correct
+            sed -e "s/^variable os_console.*/variable os_console ${console}/" \
+                -e "s/^timeout.*/timeout 5/" \
+                < $kmnt/boot/grub/menu.lst > $kmnt/boot/grub/menu.lst.$$
+            mv -f $kmnt/boot/grub/menu.lst.$$ $kmnt/boot/grub/menu.lst
+
+            umount $kmnt
             rm -f /var/cnkey.tgz
             return
         fi
         # cleanup in preparation for new image
-        rm -rf /mnt/usbkey/* /mnt/usbkey/.[a-zA_Z]
+        rm -rf $kmnt/* $kmnt/.[a-zA_Z]
     else
         # Key in an unknown state, clear it and set it up
 
@@ -222,7 +233,7 @@ update_local_key()
 
         echo "y" | mkfs -F pcfs \
             -o B=/var/key$$/boot/grub/stage1,fat=32 /dev/rdsk/${key}p0:c
-        mount -F pcfs -o noatime /dev/dsk/${key}p0:c /mnt/usbkey
+        mount -F pcfs -o noatime /dev/dsk/${key}p0:c $kmnt
         if [[ $? != 0 ]]; then
             rm -f /var/cnkey.tgz
             rm -rf /var/key$$
@@ -232,17 +243,17 @@ update_local_key()
     fi
 
     # install new files
-    (cd /mnt/usbkey; gzcat /var/cnkey.tgz | tar xf -)
+    (cd $kmnt; gzcat /var/cnkey.tgz | tar xf -)
     rm -f /var/cnkey.tgz
 
     # setup CN boot menu
-    cat <<-MENU_DONE >/mnt/usbkey/boot/grub/menu.lst
+    cat <<-MENU_DONE >$kmnt/boot/grub/menu.lst
 	default 0
 	timeout 5
 	min_mem64 1024
 	serial --speed=115200 --unit=1 --word=8 --parity=no --stop=1
 	terminal composite
-	variable os_console text
+	variable os_console $console
 
 	title Compute Node (PXE)
 	kernel /boot/ipxe.lkrn
@@ -252,7 +263,7 @@ update_local_key()
 	module /boot/freedos.img raw
 	MENU_DONE
 
-    umount /mnt/usbkey
+    umount $kmnt
 
     # Always install stage1.5 since we don't know if key was bootable
     printf "(hd0) %s\n" /dev/dsk/${key}p0 >/tmp/grub.map
