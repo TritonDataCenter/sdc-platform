@@ -50,6 +50,26 @@ wait_and_clear()
     done
 }
 
+create_setup_status()
+{
+    [[ -e /var/lib/setup.json ]] && rm -f /var/lib/setup.json
+    echo "{" \
+	"\"node_type\": \"computenode\"," \
+	"\"start_time\": \"$(date "+%Y-%m-%dT%H:%M:%SZ")\"," \
+	"\"current_state\": \"setup_complete\"," \
+	"\"seen_states\": [" \
+	"\"zpool_created\"," \
+	"\"filesystems_setup\"," \
+	"\"agents_installed\"," \
+	"\"upgrade_complete\"," \
+	"\"setup_complete\"" \
+	"]," \
+	"\"complete\": true," \
+	"\"last_updated\": \"$(date "+%Y-%m-%dT%H:%M:%SZ")\"" \
+	"}" >/var/lib/setup.json
+    chmod 400 /var/lib/setup.json
+}
+
 # This process is execessively complex but if not done carefully we can wedge
 # with svcs in maintenance.  We start by removing all but the agents_core.
 # Sometimes this leaves one or more agents still installed, so we do it again.
@@ -343,6 +363,9 @@ case "$1" in
 
             uninstall_agents6
             install_agents7
+
+            create_setup_status
+            svcadm restart ur
 
             update_local_key
 
