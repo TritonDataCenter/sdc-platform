@@ -365,6 +365,8 @@ case "$1" in
             install_agents7
 
             create_setup_status
+            sysinfo -u
+            rm -f /tmp/.ur-startup
             svcadm restart ur
 
             update_local_key
