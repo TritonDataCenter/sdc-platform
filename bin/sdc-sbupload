@@ -29,13 +29,7 @@ function encrypt_bundle
 
 function upload_bundle
 {
-    # no DNS, resolve the server
-    hostname=$(echo $CONFIG_sbapi_url | cut -f3 -d "/" | cut -f1 -d ":")
-    ip=$(dig $hostname +short)
-    # replace the host.domain with ip address, then ensure there's always a trailing /
-    with_ip=$(echo $CONFIG_sbapi_url | sed  "s|\(.*\)$hostname\(.*\)|\1$ip\2|" | sed 's|/*$|/|')
-
-    curl ${PROXY} -k -T ${ENCRYPTED_OUT} -u ${CONFIG_sbapi_http_user}:${CONFIG_sbapi_http_pass} ${with_ip}
+    curl ${PROXY} -k -T ${ENCRYPTED_OUT} -u ${CONFIG_sbapi_http_user}:${CONFIG_sbapi_http_pass} ${CONFIG_sbapi_url}
 
 }
 
