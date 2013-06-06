@@ -152,6 +152,22 @@ install_agents7()
     return 0
 }
 
+configure_imgadm()
+{
+    if [[ ! -f /var/imgadm/imgadm.conf ]]; then
+        mkdir -p /var/imgadm
+        echo '{}' > /var/imgadm/imgadm.conf
+    fi
+    if [[ -z "$(json -f /var/imgadm/imgadm.conf sources)" ]]; then
+        # re-load config
+        load_sdc_config
+
+        imgadm sources -f -a http://$CONFIG_imgapi_domain
+        # remove the default
+        imgadm sources -f -d https://images.joyent.com
+    fi
+}
+
 update_root_password()
 {
 
@@ -370,6 +386,7 @@ case "$1" in
             svcadm restart ur
 
             update_local_key
+            configure_imgadm
 
             echo "Upgrade done" > /dev/console
         fi
