@@ -168,6 +168,15 @@ configure_imgadm()
     fi
 }
 
+configure_fwadm()
+{
+    if [[ ! -d /var/log/fw/logs ]]; then
+        mkdir -p /var/log/fw/logs
+        mv /var/log/fw/*-*.log /var/log/fw/logs
+        touch /var/log/fw/fw.log
+    fi
+}
+
 update_root_password()
 {
 
@@ -391,6 +400,8 @@ case "$1" in
             echo "Upgrade done" > /dev/console
         fi
     fi
+
+    configure_fwadm
 
     if /bin/bootparams | grep "^headnode=true" > /dev/null 2>&1; then
         /usr/sbin/umount $USBMOUNT
