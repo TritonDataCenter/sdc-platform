@@ -143,12 +143,13 @@ install_agents7()
 
     # Note: the preceeding call to install_config has called load_sdc_config
 
-    curl -k -o /var/agents_latest.sh \
+    rm -f /var/tmp/agents_latest.sh
+    curl -k -o /var/tmp/agents_latest.sh \
         -s $CONFIG_assets_admin_ip:/extra/agents/latest
 
-    [[ ! -f /var/agents_latest.sh ]] && return 1
-    (cd /var/tmp; bash /var/agents_latest.sh)
-    rm -f /var/agents_latest.sh
+    [[ ! -f /var/tmp/agents_latest.sh ]] && return 1
+    (cd /var/tmp; bash /var/tmp/agents_latest.sh)
+    rm -f /var/tmp/agents_latest.sh
     return 0
 }
 
@@ -237,9 +238,9 @@ update_local_key()
     local nkeys=`echo $key | wc -w`
     [ $nkeys -ne 1 ] && return
 
-    curl -k -o /var/cnkey.tgz -f -s \
+    curl -k -o /var/tmp/cnkey.tgz -f -s \
         $CONFIG_assets_admin_ip:/extra/usbkey/cnkey.tgz
-    [ ! -f /var/cnkey.tgz ] && return
+    [ ! -f /var/tmp/cnkey.tgz ] && return
 
     local console=$(bootparams | grep ^console= | cut -d= -f2)
     [ -z "$console" ] && console=text
@@ -259,7 +260,7 @@ update_local_key()
             mv -f $kmnt/boot/grub/menu.lst.$$ $kmnt/boot/grub/menu.lst
 
             umount $kmnt
-            rm -f /var/cnkey.tgz
+            rm -f /var/tmp/cnkey.tgz
             return
         fi
         # cleanup in preparation for new image
@@ -276,23 +277,23 @@ update_local_key()
         fdisk -F /tmp/fdisk.in /dev/rdsk/${key}p0
 
         # Need temp copy of files for grub stage1
-        mkdir /var/key$$
-        (cd /var/key$$; gzcat /var/cnkey.tgz | tar xf -)
+        mkdir /var/tmp/key$$
+        (cd /var/tmp/key$$; gzcat /var/tmp/cnkey.tgz | tar xf -)
 
         echo "y" | mkfs -F pcfs \
-            -o B=/var/key$$/boot/grub/stage1,fat=32 /dev/rdsk/${key}p0:c
+            -o B=/var/tmp/key$$/boot/grub/stage1,fat=32 /dev/rdsk/${key}p0:c
         mount -F pcfs -o noatime /dev/dsk/${key}p0:c $kmnt
         if [[ $? != 0 ]]; then
-            rm -f /var/cnkey.tgz
-            rm -rf /var/key$$
+            rm -f /var/tmp/cnkey.tgz
+            rm -rf /var/tmp/key$$
             return
         fi
-        rm -rf /var/key$$
+        rm -rf /var/tmp/key$$
     fi
 
     # install new files
-    (cd $kmnt; gzcat /var/cnkey.tgz | tar xf -)
-    rm -f /var/cnkey.tgz
+    (cd $kmnt; gzcat /var/tmp/cnkey.tgz | tar xf -)
+    rm -f /var/tmp/cnkey.tgz
 
     # setup CN boot menu
     cat <<-MENU_DONE >$kmnt/boot/grub/menu.lst
