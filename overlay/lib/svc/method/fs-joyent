@@ -120,6 +120,20 @@ if [ $? -ne 0 ]; then
         swap -a /dev/zvol/dsk/${SYS_ZPOOL}/swap || \
             fatal "failed to configure swap device"
 
+        #
+        # Configure the dump device on top of a ZFS volume.  In addition to the
+        # usual dumpadm(1m) call, there are two prerequisites for using this
+        # volume as a dump device: (1) that zvol must be using the noparity
+        # checksum algorithem, and (2) the MULTI_VDEV_CRASH_DUMP ZFS feature
+        # must be enabled.  Prerequisite (1) is necessary since the exact
+        # on-disk value for ZIO_CHECKSUM_NOPARITY has changed, so to avoid a
+        # flag day on all systems, this service just sets that property again
+        # every time.
+        #
+        zfs set checksum=noparity ${SYS_ZPOOL}/dump || \
+            fatal "failed to set checksum=noparity on dump zvol"
+        zpool set feature@multi_vdev_crash_dump=enabled ${SYS_ZPOOL} || \
+            fatal "failed to enable multi_vdev_crash_dump ZFS feature"
 	dumpadm -y -d /dev/zvol/dsk/${SYS_ZPOOL}/dump || \
             fatal "failed to configure dump device"
 
