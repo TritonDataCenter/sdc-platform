@@ -23,6 +23,7 @@
 # Copyright 2013 Joyent, Inc.  All rights reserved.
 # Use is subject to license terms.
 
+export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 set -o xtrace
 
 . /lib/svc/share/smf_include.sh
