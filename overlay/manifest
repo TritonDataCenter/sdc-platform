@@ -11,6 +11,6 @@ d lib/svc/manifest 0755 root sys
 d lib/svc/manifest/system 0755 root sys
 f lib/svc/manifest/system/smartdc-ur.xml 0444 root sys
 f lib/svc/method/smartdc-config 0555 root bin
-d smartdc 0755 root root
+d smartdc 0555 root bin
 d smartdc/vm-upgrade 0755 root root
 f smartdc/vm-upgrade/001_upgrade 0555 root bin
