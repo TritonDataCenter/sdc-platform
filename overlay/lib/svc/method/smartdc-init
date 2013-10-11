@@ -168,6 +168,8 @@ configure_imgadm()
         # remove the default
         imgadm sources -f -d https://images.joyent.com
     fi
+
+    imgadm update
 }
 
 configure_fwadm()
