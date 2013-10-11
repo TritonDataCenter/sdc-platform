@@ -363,6 +363,15 @@ case "$1" in
         if [[ -d /opt/smartdc/agents/modules && \
             ! -d  /opt/smartdc/agents/lib ]]; then
 
+	    # During upgrade (or even before) we know the config file should
+	    # have been upgraded to include the imgapi_domain entry. If that
+	    # didn't happen, fail now.
+	    egrep -s imgapi_domain /opt/smartdc/config/node.config
+	    if [ $? -ne 0 ]; then
+                echo "ERROR: the local config file was not updated for upgrade."
+                exit $SMF_EXIT_ERR_FATAL
+	    fi
+
             # Enable new ZFS features. The pool will no longer be usable on 6.5
             zpool set feature@async_destroy=enabled zones
             zpool set feature@empty_bpobj=enabled zones
