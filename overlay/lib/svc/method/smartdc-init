@@ -378,7 +378,6 @@ case "$1" in
             zpool set feature@async_destroy=enabled zones
             zpool set feature@empty_bpobj=enabled zones
             zpool set feature@lz4_compress=enabled zones
-            zpool set feature@filesystem_limits=enabled zones
 
             # Convert to 7.0-style cores datasets
             zfs destroy -r zones/cores
