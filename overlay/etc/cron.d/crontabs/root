@@ -6,6 +6,8 @@
 0 1 * * * /opt/smartdc/bin/sdc-phonehome
 ## Delete saved core dumps over 7 days old
 15 0 * * * find /zones/*/cores -type f -mtime +7 -exec rm -f "{}" \;
+## Delete archived zone data over 7 days old
+30 0 * * * find /zones/archive/ -mount -maxdepth 1 -mindepth 1 -type d -mtime +7 -exec rm -rf "{}" \;
 
 # NOTE: all entries above are in root's system-defined crontab; see the
 # crontab(1) man page.
