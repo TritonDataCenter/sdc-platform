@@ -1,3 +1,5 @@
+d var/log/sdc 0755 root sys
+d var/log/sdc/upload 0755 root sys
 d smartdc 0555 root bin
 d smartdc/bin 0555 root bin
 f smartdc/bin/amqpsnoop 0555 root bin
