@@ -185,7 +185,13 @@ fi
 
 function make_usb_copy
 {
-    $(cd ${USBMOUNTPOINT}; rsync -a --exclude private --exclude os * ${COPYINPOINT})
+    echo "" > /dev/console
+    echo "Moving files from USB boot device onto disk storage." > /dev/console
+    echo "This may take several minutes. Please note the time..." > /dev/console
+    echo "" > /dev/console
+    echo "" > /dev/console
+
+    $(cd ${USBMOUNTPOINT}; rsync -av --log-file=/dev/console --exclude private --exclude os * ${COPYINPOINT})
     if [[ -d ${USBMOUNTPOINT}/os ]]; then
         (cd ${USBMOUNTPOINT}/os ; \
             for dir in $(ls -d *); do
@@ -195,10 +201,14 @@ function make_usb_copy
                 source_dir=${dir}
                 target_dir=$(echo ${dir} | tr "[:lower:]" "[:upper:]")
                 mkdir -p ${COPYINPOINT}/os
+                echo "Copying: ${source_dir}/ ${COPYINPOINT}/os/${target_dir}" > /dev/console
                 rsync -a ${source_dir}/ ${COPYINPOINT}/os/${target_dir}
             done
         )
     fi
+
+    echo "" > /dev/console
+    echo "Done copying files from USB device" > /dev/console
 }
 
 mkdir -p ${USBMOUNTPOINT}
