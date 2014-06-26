@@ -18,7 +18,6 @@ manifest:
 
 install: world
 	@mkdir -p $(DESTROOT)/bin
-	cp -p pubkey.key $(DESTROOT)/
 	@for file in $$(ls $(ROOT)/bin); do \
 		/usr/sbin/install -m 0755 \
 		-f $(DESTROOT)/bin \
@@ -49,7 +48,6 @@ man:
 			echo $(RONNJS) --roff --build $${file} --date `git log -1 --date=short --pretty=format:'%cd' $${file}` `date +%Y`; \
 			$(RONNJS) --roff --build $${file} --date `git log -1 --date=short --pretty=format:'%cd' $${file}` `date +%Y`; \
 		done; \
-		echo "# Run 'MANPATH=man man sdc-sbcreate' to try it out."; \
 	else \
 		echo "Skipping manpage build, missing: $(RONNJS)"; \
 	fi
