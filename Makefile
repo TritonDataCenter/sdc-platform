@@ -23,12 +23,6 @@ install: world
 		-f $(DESTROOT)/bin \
 		$(ROOT)/bin/$${file}; \
 	done
-	@mkdir -p $(DESTROOT)/node_modules
-	for file in $$(ls $(ROOT)/node_modules); do \
-		/usr/sbin/install -m 0644 \
-		-f $(DESTROOT)/node_modules \
-		$(ROOT)/node_modules/$${file}; \
-	done
 	@mkdir -p $(DESTROOT)/man/man1
 	for file in $$(ls $(ROOT)/man/man1/*.roff); do \
 		/usr/sbin/install -m 0644 \
