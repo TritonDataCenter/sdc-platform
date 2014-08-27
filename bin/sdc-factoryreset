@@ -1,6 +1,14 @@
 #!/usr/bin/bash
 #
-# Copyright (c) 2011, Joyent Inc. All rights reserved.
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+#
+# Copyright (c) 2014, Joyent, Inc.
+#
+
 #
 # Sets a ZFS property to perform a factory reset, that is, discards all state on
 # this machine and runs setup again.

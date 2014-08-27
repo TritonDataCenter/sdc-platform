@@ -30,4 +30,4 @@ that administrator has console access.
 
 ## COPYRIGHT
 
-sdc-factoryreset Copyright (c) 2011 Joyent Inc., All rights reserved.
+sdc-factoryreset Copyright (c) 2014, Joyent, Inc.
