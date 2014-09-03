@@ -10,6 +10,10 @@
 
 # sdc-platform
 
+This repository is part of the Joyent SmartDataCenter project (SDC).  For
+contribution guidelines, issues, and general documentation, visit the main
+[SDC](http://github.com/joyent/sdc) project page.
+
 This repo holds tools that go only in the SmartDC flavor of the SmartOS
 platform image. Files that do not belong in the platform or are not specific
 to the SmartDC flavor, do not belong here.
