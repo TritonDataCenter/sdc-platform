@@ -186,7 +186,7 @@ fi
 function make_usb_copy
 {
     usb_copy_rsync_verbose_flags="" 
-    if ! grep -q "setup_complete" /var/lib/setup.json ; then
+    if ! grep -q "setup_complete" /var/lib/setup.json 2>/dev/null ; then
         usb_copy_rsync_verbose_flags="-v --log-file=/dev/console" 
     fi
 
