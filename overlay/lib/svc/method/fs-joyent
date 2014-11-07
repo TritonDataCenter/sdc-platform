@@ -186,9 +186,11 @@ fi
 function make_usb_copy
 {
     usb_copy_rsync_verbose_flags="" 
-    grep "setup_complete" /var/lib/setup.json > /dev/null  ||  usb_copy_rsync_verbose_flags="-v --log-file=/dev/console" 
+    if ! grep -q "setup_complete" /var/lib/setup.json ; then
+        usb_copy_rsync_verbose_flags="-v --log-file=/dev/console" 
+    fi
 
-    if [[ -n $usb_copy_rsync_verbose_flags ]] ; then
+    if [[ -n "$usb_copy_rsync_verbose_flags" ]] ; then
     	echo "" > /dev/console
     	echo "Moving files from USB boot device onto disk storage." > /dev/console
     	echo "This may take several minutes. Please note the time..." > /dev/console
@@ -196,7 +198,7 @@ function make_usb_copy
     	echo "" > /dev/console
     fi	
 
-    $(cd ${USBMOUNTPOINT}; rsync -a $usb_copy_rsync_verbose_flags --exclude private --exclude os * ${COPYINPOINT})
+    (cd ${USBMOUNTPOINT}; rsync -a $usb_copy_rsync_verbose_flags --exclude private --exclude os * ${COPYINPOINT})
     if [[ -d ${USBMOUNTPOINT}/os ]]; then
         (cd ${USBMOUNTPOINT}/os ; \
             for dir in $(ls -d *); do
