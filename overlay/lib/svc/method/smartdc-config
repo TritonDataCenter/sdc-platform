@@ -48,6 +48,17 @@ case "$1" in
 
         # Check for config and run interactive if it doesn't exist.
         if [[ ! -f ${USB_PATH}/config ]]; then
+	
+            if ! grep -q "datacenter_name" ${USB_PATH}/config ; then
+                echo "" > /dev/console;
+                echo "-----------------" > /dev/console;	
+                echo "You appear to have a zpool named zones, and a /usbkey/config file,"
+                echo "but that file is not an SDC headnode configuration file." > /dev/console;
+                echo "This may occur if you boot a bare-SmartOS host into SDC, which is *unsupported*." > /dev/console;
+                echo "You will need to destroy this zpool and start with empty disks to install an SDC headnode." > /dev/console;	
+                echo "-----------------" > /dev/console;
+            fi
+            
             if /bin/bootparams | grep "^noimport=true" >/dev/null 2>&1; then
                 # Skipping interactive config, bypass rest of script.
                 exit $SMF_EXIT_OK
