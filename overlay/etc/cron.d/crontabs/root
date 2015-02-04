@@ -5,7 +5,7 @@
 ## Rotate vm.log files for any KVM VMs
 0 * * * * SDC_LOG_ROLL_BACKWARD=1 /usr/vm/sbin/rotate-kvm-logs.sh >> /var/log/rotate-kvm-logs.log 2>&1
 ## Headnode should phone home nightly.
-0 1 * * * /opt/smartdc/bin/sdc-phonehome
+0 1 * * * [ -x /opt/smartdc/bin/sdc-phonehome ] && /opt/smartdc/bin/sdc-phonehome
 ## Delete saved core dumps over 7 days old
 15 0 * * * find /zones/*/cores -type f -mtime +7 -exec rm -f "{}" \;
 ## Delete archived zone data over 7 days old
